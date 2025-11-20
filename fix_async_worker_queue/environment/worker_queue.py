@@ -37,8 +37,6 @@ async def worker(worker_id: int):
     while True:
         job_id: Optional[str] = None
         try:
-            # BUG: Worker doesn't actually get jobs from queue properly
-            # This causes jobs to never be processed
             await asyncio.sleep(1)
             continue
             
@@ -51,17 +49,10 @@ async def worker(worker_id: int):
 
             job = job_store[job_id]
 
-            # BUG: Job status never transitions to PROCESSING
-            # Missing: job.status = JobStatus.PROCESSING
-
             print(f"Worker {worker_id} processing job {job_id}")
 
             # Simulate work
             await asyncio.sleep(2.0)
-
-            # BUG: Job is never marked as COMPLETED
-            # Missing: job.status = JobStatus.COMPLETED
-            # Missing: job.completed_at = time.time()
 
             print(f"Worker {worker_id} completed job {job_id}")
 
@@ -80,10 +71,7 @@ async def start_workers(num_workers: int = 3):
     """Start background worker tasks - BUGGY VERSION."""
     global workers_started
     
-    # BUG: Workers are never actually started
-    # Missing: loop to create worker tasks
-    
-    workers_started = True  # This is set to True even though workers aren't started
+    workers_started = True
 
 
 @app.on_event("startup")
@@ -111,9 +99,6 @@ async def submit_job(task_type: str, data: str = ""):
     )
 
     job_store[job_id] = job
-
-    # BUG: Job is never queued for processing
-    # Missing: await job_queue.put(job_id)
 
     return {"job_id": job_id, "status": "submitted"}
 
